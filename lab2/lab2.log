@@ -1,0 +1,143 @@
+George Archbold Assignment 2: Hawaiian Spell Check
+
+I started by typing the locale command to check the default server settings.
+They were all set to en_US.UTF-8 so I had to use the export LC_ALL='C'   command
+to change them to the right setting.
+
+I used the sort /usr/share/dict/words >> words command to sort the words file
+and transfer it into a new file in my working directory.
+
+wget http://web.cs.ucla.edu/classes/winter16/cs35L/assign/assign2.html
+
+Then I began to try and test the tr commands. I started with:
+
+tr -c 'A-Za-z' '[\n*]' assign2.html | tr -c 'A-Za-z' '[\n*]' echo assign2.html |
+tr -c 'A-Za-z' '[\n*]'
+
+Then after looking on Piazza I realized I needed the command to be writtens  as
+such: 
+tr -c 'A-Za-z' '[\n*]' <assign2.html
+
+By looking at the man page I found that the -c flag means it complements all the
+characters in set1. So basically anything that is not in set1 (ie. any
+characters other than letters) gets translated into a new line.
+
+I then ran the second command: 
+
+tr -cs 'A-Za-z' '[\n*]' <assign2.html 
+And thisgave the same output as the command above, however it did not insert  the new lines.
+
+I then ran the third command: 
+
+tr -cs 'A-Za-z' '[\n*]' <assign2.html | sort 
+This produced the same output as the command above, however it was  alphabetically sorted.
+
+I then ran the fourth command:
+
+tr -cs 'A-Za-z' '[\n*]' <assign2.html | sort -u
+This does the same as the command above however it omits the duplicate words in
+its ouput. So instead of outputting the sorted list with each word  appearing 
+asmany times as it had in the document, each word only appears  once.
+
+I then ran the fifth command: 
+
+tr -cs 'A-Za-z' '[\n*]'<assign2.html | sort -u |comm - words 
+The addition of the comm command compared the two sorted files,
+assign2.html and words. It then created three lists. The first list was all the
+files unique to assign2.html; the second list contained words unique to words.
+The third list contained words shared by both files. I found this info from the
+comm man page.
+
+I then ran the sixth command: 
+
+tr -cs 'A-Za-z' '[\n*]' <assign2.html | sort -u |comm -23 - words 
+The addition of the -23 flage suppressed the second and third
+list. So it  printed all the words unique to the assign2.html file.
+
+
+This is where I began my script:
+
+First I did: wget http://mauimapp.com/moolelo/hwnwdseng.htm  emacs buildwords
+chmod u+x buildwords
+
+I began my script with the line:
+
+cat | grep -o '<td>.*</td>'
+
+The grep command is a file search utility that in the case above searches for
+all entries in the htm file that have any words enclosed in the  <td>word</td>
+braces. Initially I hard coded the html file into it, but realized that it 
+needs to accept any input and changed it to include cat.
+
+
+| sed 's/\(<td>\|<\/td>\)//g' 
+This command took all the words and deleted the
+<td></td> tags.
+
+
+| grep -v '^$' 
+This command finds all the lines that start and end with nothing
+in between, essentially all the empty lines. The -v command means invert-match.
+So  instead of extracting all the found files, it extracts all the other files,
+and deletes the empty lines.
+
+| sed -n '2~2p' 
+This command inputted every english and hawaiian word
+alternating each line. So my idea was to just extract every other line. In the
+man page of sed there is an entry called first~step, which basically starts at
+the "first" line and then steps over every specified step interval. '2~2p'
+basically means start with the second line and pick every other line after 
+that.
+
+| sed 's/<u>|\<\/u>//g'
+This command finds and instance of <u> or </u> and deletes it. This command 
+requires that we escape the / in </u> because the it will not get read 
+otherwise.
+
+| sed 's/`/'"'"'/g'
+This command converts every hawaiian 'okina to an ASCII '.
+
+| sed 's/[ ,]/\n/g'
+This command takes all the hawaiian word entries and if it finds any spaces or
+or commas it will generate a new line.
+
+| grep -v '^$'
+This clears the extra empty lines created by the previous command. It finds 
+every line that starts "^" and ends "$" with nothing in between it. The -v then 
+inverts the search and extracts all the other lines.
+
+| tr 'A-Z' 'a-z'
+This translate changes every uppercase letter to a lowercase.
+
+| grep -v '[^pk'"'"'mnwlhaeiou]'
+This command finds every word that contains a character other than the ones 
+listed in the square braces. These are all the hawaiian letters so it will 
+delete any word that should not be listed.
+
+| sort -u
+This takes the final list of hawaiian words and sorts it based on the locale
+convention.
+
+
+
+In order to use this script as a spell check command:
+
+tr -cs "A-Za-z" '[\n*]' < assign2.html | sort -u | comm -23 - words | wc -l
+From this command I got 80 words that were misspelled in English.
+
+tr -cs "pk\'mnwlhaeiou" '[\n*]' < assign2.html | sort -u | comm -23 - hwords 
+| wc -l
+From this command I got 198 words that were misspelled in Hawaiian.
+
+
+I made files from those two outputs and compared them (looked ) to which were mispelled in one language but not the other
+
+Examples of English: CTYPE, Hword, Exp, VanDeBogart, hwnwdseng
+Examples of Hawaiian: emainin, epla, imila, lowe, olumn
+
+
+
+
+
+
+

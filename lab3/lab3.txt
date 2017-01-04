@@ -1,0 +1,104 @@
+George Archbold
+Lab 3: Python
+
+I began by downloading the coreutils-7.6 file to my local machine and then from the terminal uploading it to the linux server:
+ scp ~/Downloads/coreutils-7.6.tar.gz archbold@lnxsrv09.seas.ucla.edu:~/CS35L
+
+Then I had to untar the tgz zip file on the linux server:
+tar -xvzf coreutils-7.6.tar.gz
+
+Then I ran ./configure to install the the program:
+./configure
+make
+make install
+
+I tried to run make first but then linux told me I must run ./configure first
+
+After this step I ran the command:
+ls -l /bin/bash
+to try and recreate the bug however I got the correct ouput not the buggy one
+
+After looking back at the slides I realized that I needed to make a separate directory to install coreutils in.
+mkdir coreutilsInstall
+
+I then went to the INSTALL page in the coreutils-7.6 directory to figure out how to install it. I found out you have to use the --prefix flag to specify where to install it. So it then ran:
+./configure --prefix=/CS35L/lab3/coreutilsInstall
+ 
+ I then realized I need the absolute path so I rand
+./configure --prefix=/u/be/ugrad/archbold/CS35L/lab3/coreutilsInstall
+
+Then I ran make install, and went to the bin directory.
+I then ran ./ls -l /bin/bash and got the correct bug:
+-rwxr-xr-x 1 root root 960376 2015-07-08 04:11 /bin/bash
+
+I then went back to the assignment page and looked at Bradey's patch to see what need to be changed.
+
+I manually went into the src/ls.c file using emacs and use to the command to go to a line:
+M-g M-g 2029
+I then made the specified changes.
+
+After looking at piazza I realized that you cant do it manually. So I reverted the file, and then made a new file called patchfile
+
+I added the specified changes from Brady's Patch into patchfile and ran th patch command:
+patch -p0 <patchfile
+
+I kept running it with minor modifications and getting this error:
+
+patching file src/ls.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] y
+Hunk #1 succeeded at 2013 (offset -1 lines).
+Hunk #2 FAILED at 2030.
+1 out of 2 hunks FAILED -- saving rejects to file src/ls.c.rej
+
+I could not get the second hunk to work successfully. 
+
+So I decided to start over. I deleted the whole coreutils-7.6 directory and reuntarred it.I remade my patch file and ran it with the same command and it worked:
+
+File to patch: src/ls.c
+patching file src/ls.c
+Hunk #1 succeeded at 2013 (offset -1 lines).
+Hunk #2 succeeded at 2028 (offset -1 lines).
+
+after this I ran make again so that the program would recompile ls.c without having to recompile every file. This gave me:
+
+make[3]: Entering directory '/w/home.05/be/archbold/coreutils-7.6/src'
+  CC     ls.o
+  CCLD   dir
+  CCLD   vdir
+  CCLD   ls
+
+make[2]: Entering directory '/w/home.05/be/archbold/coreutils-7.6/man'
+  GEN    dir.1
+  GEN    vdir.1
+  GEN    ls.1
+
+The fisrt four commands were necessary becase they compiled the ls.c file and were needed to see the implemented changes. However the last three commands only modified files in the man bin, which is unnecessary seeing as we did not make any changes there.
+
+To test if the command was right I tested the correct and incorrect command on two separate files. First I changed the timestamp on hex.txt:
+
+touch -t 200409201045.33 hex.txt
+
+correct:
+[archbold@lnxsrv09 ~]$ ./coreutils-7.6/src/ls -l ~/hex.txt
+-rw-r--r-- 1 archbold beugrad 54 Sep 20  2004 /u/be/ugrad/archbold/hex.txt
+
+
+incorrect:
+[archbold@lnxsrv09 ~]$ ./CS35L/lab3/coreutilsInstall/bin/ls -l hex.txt
+-rw-r--r-- 1 archbold beugrad 54 2004-09-20 10:45 hex.txt
+
+Then I tested it on a more recent file:
+
+
+correct:
+[archbold@lnxsrv09 ~]$ ./coreutils-7.6/src/ls -l ~/links.txt
+-rw-r--r-- 1 archbold beugrad 0 Jan  7 18:53 /u/be/ugrad/archbold/links.txt
+
+
+incorrect:
+[archbold@lnxsrv09 ~]$ ./CS35L/lab3/coreutilsInstall/bin/ls -l links.txt
+-rw-r--r-- 1 archbold beugrad 0 2016-01-07 18:53 links.txt
+
+
+THE PATCH WORKED WOHOOOO
+

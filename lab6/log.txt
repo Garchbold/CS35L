@@ -1,0 +1,63 @@
+George Archbold	
+CS 35L
+Lab 6: SSH
+
+
+To start this lab, I had to set up OpenSSH:
+
+ubuntu@ubuntu:~$ dpkg --get-selections | grep openssh
+This command showed me which open ssh pacakges I had on my server.
+
+ubuntu@ubuntu:~$ sudo apt-get install openssh-server
+ubuntu@ubuntu:~$ sudo apt-get install openssh-client
+I used these commands to install the needed packages: server and client.
+
+
+For the first part of the lab, I had to create an account on my server for my partner to connect to:
+
+ubuntu@ubuntu:~$ ssh-keygen
+This command generates the public and private keys. It asked where I would like the keys to be stored, and I just pressed enter, storing them in the default location
+
+ubuntu@ubuntu:~$ sudo useradd /home/ap -m ap
+ubuntu@ubuntu:~$ sudo passwd ap
+These two commands create the account under the given name in the specified directory. It also gives the account a password.
+
+ubuntu@ubuntu:~$ cd /home/ap
+ubuntu@ubuntu:~$ sudo mkdir .ssh
+Then I had to cd into the created account, and make a ssh directory.
+
+ubuntu@ubuntu:~$ sudo chown -R ap .ssh
+ubuntu@ubuntu:~$ sudo chmod 700 .ssh
+This gave ownership and all other permissions (read, write, execute) to the user.
+
+My partner connected to my server and called the if config command, and it showed that she was on my IP address, then to double check she made a new directory and I went into /home/ap and saw he directory she made.
+
+For the second part of the lab, I had to connect to my partners server on the account she made for me:
+
+ubuntu@ubuntu:~$ ssh-keygen
+This command generates the public and private keys.
+
+ubuntu@ubuntu:~$ ssh-copy-id -i is_rsa.pub username@partner_IP_address
+This command copies my public key to my partners server. I can now log onto the server
+
+ubuntu@ubuntu:~$ ssh-add is_rsa
+This command copies my public key to my partners server. 
+
+ubuntu@ubuntu:~$ ssh username@partner_IP_address
+ubuntu@ubuntu:~$ ssh -X username@partner_IP_address
+I tested -X port forwarding in this command. I logged in and called xterm, and the GUi displayed in the terminal
+
+I also checked ifconfig and it showed my partners IP address, indicating a successful ssh connection.
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,12 @@
+George Archbold	
+Homework 6
+
+1. Supposing other teams had been observing all the bytes going across our network, our resulting network would still be secure. All the data being sent across the network is encrypted so, the bytes they would be seeing would all mean nothing.
+
+Now supposing that other teams had access to our key strokes, our data would remain secure due to the ssh encyrption, however we could be compromised because they would be able to see any passwords we typed in.
+
+If we were to boot off of a USB, and the other teams had physical control of it, we would have no security. They would have our private key allowing them to decrypt any data sent over the network.
+
+2. The gpg --verify command in the following instructions doesn't really verify that you personally created the tar file, because it can only verify the integrity of the document that was sent. It has no way of making sure that a certain person actually sent it. It uses the public key to check the origin of the file. So theoretically, a potential attacker could disguise themself as a legitimate server client by using someone elses public key.
+
+The only real way to go about fixing this problem is to use a third party to keep track of every key and who it belongs to. This would provide a database that allows you to verify the public key against a digital signature. 

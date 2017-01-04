@@ -1,0 +1,10 @@
+#! /bin/sh
+
+
+
+cat | grep -o '<td>.*</td>' | sed 's/\(<td>\|<\/td>\)//g'
+| grep -v '^$' | sed -n '2~2p'| sed 's/<u>\|<\/u>//g'
+| sed 's/`/'"'"'/g' | sed 's/[ ,]/\n/g' | grep -v '^$'
+| tr 'A-Z' 'a-z' | grep -v '[^pk'"'"'mnwlhaeiou]' | sort -u
+
+

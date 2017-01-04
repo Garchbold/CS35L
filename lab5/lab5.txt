@@ -1,0 +1,163 @@
+George Archbold
+604407413
+Lab 5
+
+I downloaded the buggy coreutils file onto my home machine and then 
+used scp to upload it to the server:
+
+scp ~/Downloads/coreutils-with-bug.tar.gz archbold@lnxsrv09.seas.ucla.
+edu:~/CS35L/lab5/
+
+
+I then untar-ed it and built it:
+
+tar -xzf coreutils-with-bug.tar.gz
+./configure --prefix=/u/be/ugrad/archbold/CS35L/lab5/coreutils-with-bug
+make
+
+Trying to build the buggy coreutils, I got an error signaling that 
+there were conflicting types for futimens:
+
+utimens.h:2:5: error: conflicting types for 'futimens'
+ int futimens (int, char const *, struct timespec const [2]);
+     ^
+
+I then uploaded the patch from the wesite page:
+
+ wget http://web.cs.ucla.edu/classes/winter16/cs35L/assign/coreutils.diff
+
+Then I used this patch to make the necessary changes:
+
+patch -p0 < coreutils.diff 
+
+patching file lib/utimens.c
+patching file lib/utimens.h
+patching file src/copy.c
+patching file src/tee.c
+patching file src/touch.c
+
+To reproduce the bug I ran the code in the example:
+
+$ tmp=$(mktemp -d)
+$ cd $tmp
+$ touch -d '1918-11-11 11:00 GMT' wwi-armistice
+$ touch now
+$ sleep 1
+$ touch now1
+$ TZ=UTC0 ~/CS35L/lab5/coreutils-with-bug-patched/src/ls -lt --full-time wwi-armistice now now1
+
+-rw-r--r-- 1 archbold beugrad 0 1918-11-11 11:00:00.000000000 +0000 wwi
+-armistice
+-rw-r--r-- 1 archbold beugrad 0 2016-02-03 21:01:12.524954054 +0000 
+now1
+-rw-r--r-- 1 archbold beugrad 0 2016-02-03 21:01:01.657785857 +0000 now
+
+Now that the new patch has successfully been added, I rebuild the 
+coreutils-with-bugs:
+
+./configure --prefix=/u/be/ugrad/archbold/CS35L/lab5/coreutils-with-bug
+
+
+Looking at the patch, we can see that every change made by the 
+renaming patch 
+literally just deleted every case of futimens, and called it 
+coreutils_futimens:
+
+-  ok = (futimens (fd, (fd == STDOUT_FILENO ? NULL : file), t) == 0);
++  ok = (coreutils_futimens (fd, (fd == STDOUT_FILENO ? NULL : file), t
+) == 0);
+
+It also did this for the function tee.
+
+
+emacs ~/CS35L/lab5/coreutils-with-bug-patched/src/ls.c
+M-x gdb
+delete su and input the executabe ls then by looking at the src code 
+for ls.c. 
+
+I used this command to run gdb without emacs:
+gdb --args ./ls -lt /tmp/wwi-armistice /tmp/now /tmp/now1
+
+I know the problem occurs in qsort from office hours, so I set a 
+breakpoint there. The error lies in the func parameter of the q sort 
+function. So searching (C-s func) for func, I find that it is in 
+sort_files and look more into that function.
+
+sort_files contains a switch statement checking for atime, mtime and 
+ctime.
+
+Since ls -lt prints the contents as a list by their time of last 
+modification we are interested in mtime in the sort_files function
+
+In sort files, I can see that the function dealing with m_time is 
+compare_mtime so I search for that and find it at line 2884.
+
+Running gdb with a break at 2884, I get:
+
+static int compare_mtime (V a, V b) { return cmp_mtime (a, b, xstrcoll)
+; }
+
+And I can see that compare_mtime calls cmp_mtime, and stepping into 
+this I can see that it calls timespec_cmp
+
+(gdb) s
+timespec_cmp (b=..., a=...) at ../lib/timespec.h:48
+48	  int diff = a.tv_sec - b.tv_sec;
+
+I found that this function is located in /lib/timespec.h by using the 
+command
+find ./coreutils-with-bug | xargs grep "timespec_cmp"
+
+I also saw that I had to disable the compiler optimization:
+./configure CFLAGS="-g -O0"
+make
+
+I added these lines into timespec_cmp so that I could see what was 
+going on in order to track the mistake:
+
+  printf("\nThe a and b values are:\n");
+  printf("%d", a.tv_sec);
+  printf("%d", b.tv_sec);
+
+When I run it with these additions it prints out:
+The a and b values are:
+-1613826000, 1454448533
+
+I know that this subtraction causes overflow from hints in class. So 
+inorder to make sure that the subtraction is valid I changed all the 
+types in timespec_cmp from ints to long longs.
+
+Also instead of returning diff's actual value,  we just want to return 
+1, 0, -1, because as it is now:
+
+  return diff ? diff : (long long)a.tv_nsec - (long long)b.tv_nsec;
+
+This statement doesnt really do anything.
+
+After making my changes, I untared another version of coreutils and used the diff command to comapre the changes made:
+
+diff coreutils-with-bug/lib/timespec.h coreutils-with-bug-patched/lib/timespec.h > lab5temp.diff
+
+Then use C-x 4-a to change the ChangeLog
+
+I combine to change log and the differences to make the final diff statement:
+
+
+cat ChangeLog lab5temp.diff > lab5.diff
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,183 @@
+Memory in C:
+
+  Rectangle_t *ptr = (Rectangle_t*) malloc(sizeof(Rectangle_t));
+      if(ptr == NULL){
+        printf(“Something went wrong in malloc”);
+        exit(-1);
+} else { 
+        //Perform tasks with the memory
+        //
+        //
+        free(ptr);
+		 ptr = NULL; 
+}
+
+
+
+Opening & Closing files in C:
+
+FILE *fPtr = NULL;
+    fPtr = fopen(“data.txt”, ”w”); //r – read, w – write, a – append
+    if(fPtr != NULL)
+    {
+      fputs(“Sample code”, fPtr);
+      fclose(fPtr);
+} 
+else { 
+    	printf(“Something went wrong in fopen”);
+		exit(-1); 
+} 
+
+
+
+Compile the following code as – gcc main.c -lpthread
+
+#include <pthread.h> 
+#include <stdio.h>
+
+void* ThreadFunction(void *arg) 
+{
+	long tID = (long)arg;
+	printf("Inside thread function with ID = %ld\n", tID); 
+	pthread_exit(0);
+}
+
+int main(int argc, char *argv[]) 
+{
+	const int nthreads = 5; pthread_t threadID[nthreads]; 
+	long t;
+	for(t = 0; t < nthreads; ++t) {
+		int rs = pthread_create(&threadID[t], 0, ThreadFunction, (void*)t); 
+		if(rs) {
+			fprintf(stderr, "Error creating thread\n");
+			return -1; 
+		}
+	}
+
+	printf("Main thread finished creating threads\n");
+
+	for(t = 0; t < nthreads; ++t) {
+		void *retVal;
+		int rs = pthread_join(threadID[t], &retVal); 
+		if(rs) {
+			fprintf(stderr, "Error joining thread\n");
+			return -1; 
+			}
+		}
+	printf("Main thread finished execution!\n");
+
+	return 0; 
+}
+
+
+QSORT example:
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int values[] = { 88, 56, 100, 2, 25 };
+
+int cmpfunc (const void * a, const void * b)
+{
+   return ( *(int*)a - *(int*)b );
+}
+
+int main()
+{
+   int n;
+
+   printf("Before sorting the list is: \n");
+   for( n = 0 ; n < 5; n++ ) 
+   {
+      printf("%d ", values[n]);
+   }
+
+   qsort(values, 5, sizeof(int), cmpfunc);
+
+   printf("\nAfter sorting the list is: \n");
+   for( n = 0 ; n < 5; n++ ) 
+   {   
+      printf("%d ", values[n]);
+   }
+  
+   return(0);
+}
+
+Python Try and Except/Option Parser:
+
+parser = OptionParser(version=version_msg, usage=usage_msg) parser.add_option("-n", "--numlines",    action="store", dest="numlines",  default=1, help="output NUMLINES  lines (default 1)") 
+
+options, args = parser.parse_args(sys.argv[1:]) 
+
+try: 
+    numlines = int(options.numlines) 
+except: 
+    parser.error("invalid NUMLINES: {0}".       format(options.numlines)) 
+if numlines < 0: 
+    parser.error("negative count: {0}".           format(numlines)) 
+if len(args) != 1: 
+    parser.error("wrong number of operands") 
+input_file = args[0] 
+try: 
+    generator = randline(input_file) 
+    for index in range(numlines):
+        sys.stdout.write(generator.chooseline()) 
+except IOError as (errno, strerror): 
+    parser.error("I/O error({0}): {1}". format(errno, strerror)) 
+
+if __name__ == "__main__":
+    main()
+
+
+Python: file as command line:
+
+#!/usr/local/cs/bin/python                                                                                                                                          
+import sys
+import string
+
+def main():
+     f = open(sys.argv[1], 'r');
+     for line in f:
+          print line
+    f.close()
+
+    d = {}
+    d[1] = "Kathy"
+    d[7456789] = "Craig"
+    if 1 in d.keys():
+          print 'We are fine'   //prints so I can check for this now
+
+
+if __name__=="__main__":
+    main()
+
+
+System Calls:
+
+fstat(0, &buf);
+if (S_ISREG(buf.st_mode))
+  {
+      //if there is no input to read, file is empty
+      if (read (0, &inputChar, 1) == 0)
+  {
+    fprintf(stderr, "Number of comparisons: %d\n", comparisons);
+    return 0;
+  }  
+
+  Later write call: 
+    write(1, new, 1);
+
+
+
+Dynamic Linking Makefile:
+
+randlibhw.so: randlibhw.c
+        $(CC) $(CFLAGS) randlibhw.c -shared -fPIC -o randlibhw.so
+
+randlibsw.so: randlibsw.c
+        $(CC) $(CFLAGS) randlibsw.c -shared -fPIC -o randlibsw.so
+
+randmain: randcpuid.o randmain.o
+        $(CC) $(CFLAGS) -ldl -Wl,-rpath=$(PWD) -o randmain randcpuid.o randmain.o
+
+

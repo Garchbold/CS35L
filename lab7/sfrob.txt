@@ -1,0 +1,69 @@
+George Archbold
+CS 35L
+Lab 7
+
+After righting all of the scripts and programs, I wanted to test the speed of each 
+of them on inputs of varying numbers of input line. 
+
+Using a 5MB file as input, and the command time ./sfrob < big.txt, I got the 
+following times:
+
+sfrob:
+real	0m0.613s
+user	0m0.134s
+sys		0m0.048s
+
+sfrobu:
+real	0m4.109s
+user	0m0.226s
+sys		0m3.849s
+
+sfrobs:
+real	0m0.929s
+user	0m0.028s
+sys		0m0.096s
+
+
+Then I wanted to test a larger file, so I used a 20MB file as input, and the 
+command time ./sfrob < bigger.txt, I got the following times:
+
+sfrob:
+real	0m2.674s
+user	0m0.578s
+sys		0m0.181s
+
+sfrobu:
+real	0m15.817s
+user	0m1.074s
+sys		0m14.617s
+
+sfrobs:
+real	0m4.989s
+user	0m0.121s
+sys		0m0.398s
+
+As I expected, I can see that the original sfrob file is the fastest, then sfrobs, 
+and then sfrobu which is substantially slower than the other two. I think sfrobs's 
+speed can be attributed to compiler optimization of the tr and sort commands.
+
+From the times above, we can clearly see that sfrobu is the slowest of the three. 
+In order to analyze the relationship between size of input file and number of 
+comparisons made, I added the line into the sfrobu file that calculates how many 
+calculations were made. I wrote a short program called looper that allowed me to 
+make timetest.txt files with different sizes. We know that the main function in 
+our program is qsort and it is known to have a complexity of O(NlogN).
+
+N:			Comparisons:			Time Complexity Relationship:
+10 			21						2.1N*log(N)
+100 		532						2.66N*log(N)
+1k 			8236					2.75N*log(N)
+10k 		112304					2.80N*log(N)
+100k 		1422928					2.85N*log(N)
+
+
+By plugging, N into our expected time complexity relationship, and dividing the 
+number of comparisons by that number, we can find that there is a small constant 
+in our calculated time complexity relationship for sfrobu. However, on a larger 
+scale this constant is insignificant and the relationship can be described as O(
+NlogN).
+

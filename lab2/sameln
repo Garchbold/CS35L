@@ -1,0 +1,53 @@
+#! /bin/bash
+
+IFS=$'\n'
+dir=$1
+dotRESULT=`ls -a $dir | grep '^\.'`
+regRESULT=`ls -a $dir | grep -v '^\.' | sort -f`
+
+declare -a ARRAY
+let count=0
+
+
+
+for FILE in $dotRESULT
+do
+    if [ ! -L "$dir/$FILE" ]
+    then
+       if
+	   [ -f  "$dir/$FILE" ]  
+           then
+   	   ARRAY[$count]="$dir/$FILE"
+	   let count=count+1
+       fi
+    fi   
+done
+
+for FILE in $regRESULT
+do
+    if [ ! -L "$dir/$FILE" ]
+    then
+	if
+	    [ -f  "$dir/$FILE" ]
+	then
+	    ARRAY[$count]="$dir/$FILE"
+	    let count=count+1
+	fi
+    fi
+    done
+
+for ((i=0; i<count; i++))
+do
+
+    for ((k=$i+1; k<count; k++))
+    do
+	if  cmp "${ARRAY[$i]}" "${ARRAY[$k]}" 
+        then
+	    rm "${ARRAY[$k]}"
+	    ln "${ARRAY[$i]}" "${ARRAY[$k]}"
+	fi
+
+    done
+done
+
+    

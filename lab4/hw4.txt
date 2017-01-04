@@ -1,0 +1,86 @@
+George Archbold
+604407413
+CS35L
+
+2. git checkout v3.0 -b quote 
+Switched to a new branch 'quote'
+
+
+3. patch -p1 <  ~/CS35L/lab4/diffutils-3.0/quote-3.0-patch.txt
+
+patching file src/cmp.c
+patching file src/diff.c
+patching file src/diff3.c
+patching file src/dir.c
+patching file src/sdiff.c
+patching file src/util.c
+
+4,5. emacs /src/cmp.c
+I used the command C-x 4 a to open the change log and then wrote a description 
+of the changes that our patch was supposed to make:
+* cmp.c: I applied a patch to change all ` (backticks) to ' (apostrophes).
+
+6. No I have to commit the changes made by the patch:
+
+git add .
+
+I then check if they have been added by calling git status, after this I 
+committed the changes:
+
+ git commit -m “ChangeLog”
+
+ The -m prompts the commit to add a message.
+
+7. git format-patch -1 --stdout > formatted-patch.txt
+ 
+ scp archbold@lnxsrv09.seas.ucla.edu:~/CS35L/lab4/diffutils/formatted-patch.
+ txt ~/Documents
+ I scp-ed my formatted patch and sent it to my partner Daniel Berestov.
+
+8/9.
+ scp ~/Documents/formatted-patch.txt archbold@lnxsrv09.seas.ucla.
+ edu:~/CS35L/lab4/
+
+I uploaded his patch to the server, and applied it to an original version of diffutils:
+
+git checkout v3.0 -b partner
+
+git am < formatted-patch.txt
+
+./bootstrap
+./configure --prefix=/u/be/ugrad/archbold/CS35L/lab4
+make
+
+make distdir
+I cd-ed into the directory it made and checked to see if the files showed up in the CHANGELOG file. They were there as expected
+
+
+10.
+I git cloned the emacs file:
+
+git clone git://git.savannah.gnu.org/emacs.git
+
+and then called gitk on it, however it did not work. So I had to install XQuartz and then log onto the 01 server:
+
+ssh -X archbold@lnxsrv01.seas.ucla.edu
+
+I then called gitk on the emacs repository, and the GUI interface popped up and it was easy to find the last merge before 1-25-15.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

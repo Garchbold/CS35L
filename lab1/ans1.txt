@@ -1,0 +1,65 @@
+
+1. man -k keyword
+To find this I used the listed hint: man man, and this opened the man page for the man command. The man -k variation was listed as an example with a description that matched what I needed.
+
+2. The cp and wc programs are located in the /usr/bin direcotry.
+At first I tried to use find . -name "wc" but this search was taking forever so I looked back in the slides and tried the whereis command.
+
+3. By using echo $PATH to find all directories, I searched in each one using the command find . -name "?" and found 3 one character executables:
+
+X - this executable had no man page
+w - displays info about users currently on the machine
+[ - general commands manual for bulletin commands 
+
+4. The actual file executed it /etc/alternatives/emacs
+By using the command readlink /usr/bin/emacs, I found the real link that this symbolic link points to.
+
+5. o-x restricts executions permission for others
+   g+s gives access to the current process running the file based on the owner and group of the file
+There is a "Special Permissions" slide in the powerpoint that explained what these chmod modes mean.
+
+6. find -mtime -21
+This one was challenging, intially I was using -atime, which I found from the man page, however there was no way I could get this work so I tried mtime and this was the correct command. I used -21 because 3 weeks comes out to 21 intervals on 24 hours.
+
+7. find / -type d -mtime -21
+
+8. I found 287 files that are symbolic links in the same directory as find. By using the command "find /usr/bin -type l > links.txt" I created a new text file with every symbolic link found in the /usr/bin and then I opened the links.txt file in emacs and it counted 287 lines: one for each symbolic link. 
+
+9. find -type f -mtime +3515
+I used the command above to find the oldest file. I just started with +1000, and kept increasing the time bound until I narrowed it down to just one file that was older than 3515 days.
+
+10. The locale command gets its data from the environment variables (LANG, LC_* and NLSPATH)
+I found this out from reading about how locale works on its man page.
+
+11. I found 10 emacs commands with the word sort in them:
+Buffer-menu-sort              M-x ... RET
+sort-columns                  M-x ... RET
+sort-fields                   M-x ... RET
+sort-lines                    M-x ... RET
+sort-numeric-fields           M-x ... RET
+sort-pages                    M-x ... RET
+sort-paragraphs               M-x ... RET
+sort-regexp-fields            M-x ... RET
+tabulated-list-col-sort       M-x ... RET
+tabulated-list-sort           M-x ... RET
+
+I found these commands by opening up emacs, and going to the help page "C-h" and then "?". The first thing in the help was the "a PATTERN" option which did a regex search for all commands. I used that to search for "sort" and found the above commands.
+
+12.
+C-M-a           beginning-of-defun		Move backward to the beginning of a defun.
+C-M-b           backward-sexp			Move backward across one balanced expression (sexp).
+C-M-c           exit-recursive-edit		Exit from the innermost recursive edit or minibuffer.
+C-M-d           down-list			Move forward down one level of parentheses.
+C-M-e           end-of-defun			Move forward to next end of defun.
+C-M-f           forward-sexp			Move forward across one balanced expression (sexp).
+C-M-h           mark-defun			Put mark at end of this defun, point at beginning.
+
+I found these from the emacs help page as well. The "b" option listed all the key bindings and all the above were in that list. I found their actions listed directly under the emacs implementation.
+
+13. The emacs command C-g runs a Lisp function that signals a direct quit. At the bottom of the emacs file it displays what commands are in process or about to be run and C-g aborts them. I found this in the same location as number 12. and tested it out in some emacs files/
+
+14. I went to the emacs implementation and went to the help "C-h" "?". Then I pressed "f" which gives function description. I typed in yank and found that it is basically just the paste function. It reinserts the last killed excerpt of text. 
+
+15. The differences between the emacs dired command and ls -l are very minor, but after looking at it closely the only difference is that dired prints more out more entries. They both provide the same file and directory information, but dired prints out some sub directories as well.
+
+  

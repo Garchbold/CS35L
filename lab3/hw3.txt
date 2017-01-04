@@ -1,0 +1,19 @@
+George Archbold
+hw3
+CS35L
+
+Q1) Brady’s Patch removes the line “case_long_iso_time_style:” solely for a convenience/declutter purpose. The real reason it is removed is because the patch actually deletes the line that calls the goto to this line. So while it is not necessary that it be deleted, it will never be called anyway.
+
+Q2) This patch will cause compatibility issues with countries who do not follow the American locale for time and dates. The only problem this could cause other than interpretation, would be in the case of a program using file time/date stamps with a different locale.
+
+Q3) When you invoke the script on an empty file it throws an exception: 
+	IndexError: list index out of range
+There is nothing for the script to select and therefor it cannot find any index.
+
+Q4) In python3, the script returns this error:
+	File “randline.py”, line 65
+		except IOError as (errno, sterror):
+				  ^
+	SyntaxError: invalid syntax
+
+Clearly there have been syntactical adjustments between the two versions, and this script was made for python 2.	

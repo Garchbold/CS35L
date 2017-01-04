@@ -1,0 +1,6 @@
+#! /bin/bash
+
+rm -rf assn1
+mkdir assn2
+touch assn2/hw.txt
+touch assn2/ans.txt

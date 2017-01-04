@@ -1,0 +1,275 @@
+George Archbold
+CS35L
+Lab 9
+
+First I began by building my c program, whish was trivial. The program cos.c calculated cos(0.5) and output it using printf. I then compiled it and ran ldd on it to see what libraries it was using:
+
+ldd cos
+
+This outputted:
+	linux-vdso.so.1 =>  (0x00007ffefbb9a000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007f14147f8000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f1414be0000)
+
+Now I used strace to see what system calls the program made:
+strace -o syscall.txt ./cos
+
+The calls that my program made that were related to dynamic linking were mmap(), read(), write() because these are the standard calls that come from the stdio.h library. It also called mprotect(), execve(), brk(),fstat(), arch_prctl() and a few more.
+
+I then called the command:
+ls /usr/bin | awk 'NR%101==604407413%101'
+
+which outputted:
+amidi
+cairo-sphinx
+colordiff (not dynamic executable)
+db47_load
+dvd+rw-booktype
+fipscheck
+g-ir-annotation-tool (not dynamic executable)
+gsdj (not dynamic executable)
+hltest
+inkscape
+kcminit_startup
+kstart
+logresolve
+mkhybrid
+nfsiostat
+otfview
+paplay
+perlivp (not dynamic executable)
+pminfo
+pod2man (not dynamic executable)
+printafm (not dynamic executable)
+recountdiff (not dynamic executable)
+runghc-7.6.3 (not dynamic executable)
+sim_client
+syndaemon
+totem
+w
+xmkmf (not dynamic executable)
+
+I then moved these all into another directory:
+cp kstart /u/be/ugrad/archbold/CS35L/lab9/exec
+
+Then in order to see al the dynamic libraries called I called the following command on the exec directory:
+
+ldd * | grep -Eo '.*?[=]' | sort -u | tr "=" " " 
+
+
+
+	libacl.so.1  
+	libapr-1.so.0  
+	libaprutil-1.so.0  
+	libarchive.so.13  
+	libasound.so.2  
+	libasyncns.so.0  
+	libatk-1.0.so.0  
+	libatk-bridge-2.0.so.0  
+	libatkmm-1.6.so.1  
+	libatspi.so.0  
+	libattica.so.0.4  
+	libattr.so.1  
+	libavahi-client.so.3  
+	libavahi-common.so.3  
+	libbz2.so.1  
+	libcairo-gobject.so.2  
+	libcairomm-1.0.so.1  
+	libcairo-script-interpreter.so.2  
+	libcairo.so.2  
+	libcap.so.2  
+	libclutter-1.0.so.0  
+	libclutter-gst-2.0.so.0  
+	libclutter-gtk-1.0.so.0  
+	libcogl-pango.so.20  
+	libcogl-path.so.20  
+	libcogl.so.20  
+	libcom_err.so.2  
+	libcrypto.so.10  
+	libcrypt.so.1  
+	libc.so.6  
+	libdb-4.7.so  
+	libdb-5.3.so  
+	libdbus-1.so.3  
+	libdbusmenu-qt.so.2  
+	libdl.so.2  
+	libdrm.so.2  
+	libdw.so.1  
+	libEGL.so.1  
+	libelf.so.1  
+	libenchant.so.1  
+	libexpat.so.1  
+	libfam.so.0  
+	libffi.so.6  
+	libfipscheck.so.1  
+	libFLAC.so.8  
+	libfontconfig.so.1  
+	libfreebl3.so  
+	libfreetype.so.6  
+	libgbm.so.1  
+	libgcc_s.so.1  
+	libgcrypt.so.11  
+	libgc.so.1  
+	libgdk-3.so.0  
+	libgdkmm-2.4.so.1  
+	libgdk_pixbuf-2.0.so.0  
+	libgdk-x11-2.0.so.0  
+	libgfortran.so.3  
+	libgio-2.0.so.0  
+	libgiomm-2.4.so.1  
+	libgirepository-1.0.so.1  
+	libglapi.so.0  
+	libglib-2.0.so.0  
+	libglibmm-2.4.so.1  
+	libGL.so.1  
+	libgmodule-2.0.so.0  
+	libgnome-desktop-3.so.10  
+	libgobject-2.0.so.0  
+	libgomp.so.1  
+	libgpg-error.so.0  
+	libgpm.so.2  
+	libgraphite2.so.3  
+	libgrilo-0.2.so.1  
+	libgrlpls-0.2.so.0  
+	libgslcblas.so.0  
+	libgsl.so.0  
+	libgsm.so.1  
+	libgssapi_krb5.so.2  
+	libgstaudio-1.0.so.0  
+	libgstbase-1.0.so.0  
+	libgstpbutils-1.0.so.0  
+	libgstreamer-1.0.so.0  
+	libgsttag-1.0.so.0  
+	libgstvideo-1.0.so.0  
+	libgthread-2.0.so.0  
+	libgtk-3.so.0  
+	libgtkmm-2.4.so.1  
+	libgtkspell.so.0  
+	libgtk-x11-2.0.so.0  
+	libharfbuzz.so.0  
+	libICE.so.6  
+	libjbig.so.2.0  
+	libjpeg.so.62  
+	libjson-c.so.2  
+	libjson-glib-1.0.so.0  
+	libk5crypto.so.3  
+	libkcmutils.so.4  
+	libkdecore.so.5  
+	libkdeinit4_kcminit_startup.so  
+	libkdeui.so.5  
+	libkeyutils.so.1  
+	libkrb5.so.3  
+	libkrb5support.so.0  
+	liblcms2.so.2  
+	libltdl.so.7  
+	liblzma.so.5  
+	liblzo2.so.2  
+	libMagickCore.so.5  
+	libMagick++.so.5  
+	libMagickWand.so.5  
+	libmagic.so.1  
+	libm.so.6  
+	libnsl.so.1  
+	libnspr4.so  
+	libnss3.so  
+	libnssutil3.so  
+	libogg.so.0  
+	libopenjpeg.so.1  
+	liborc-0.4.so.0  
+	libotf.so.0  
+	libpango-1.0.so.0  
+	libpangocairo-1.0.so.0  
+	libpangoft2-1.0.so.0  
+	libpangomm-1.4.so.1  
+	libpcp.so.3  
+	libpcre.so.1  
+	libpeas-1.0.so.0  
+	libpeas-gtk-1.0.so.0  
+	libperl.so  
+	libpixman-1.so.0  
+	libplc4.so  
+	libplds4.so  
+	libpng15.so.15  
+	libpoppler-glib.so.18  
+	libpoppler.so.46  
+	libpopt.so.0  
+	libprocps.so.4  
+	libpthread.so.0  
+	libpulsecommon-6.0.so  
+	libpulse.so.0  
+	libpython2.7.so.1.0  
+	libqca.so.2  
+	libQtCore.so.4  
+	libQtDBus.so.4  
+	libQtGui.so.4  
+	libQtNetwork.so.4  
+	libQtSvg.so.4  
+	libQtXml.so.4  
+	libquadmath.so.0  
+	libresolv.so.2  
+	librevenge-0.0.so.0  
+	librevenge-stream-0.0.so.0  
+	librols.so.0  
+	librt.so.1  
+	libsasl2.so.3  
+	libsatlas.so.3  
+	libselinux.so.1  
+	libsigc-2.0.so.0  
+	libSM.so.6  
+	libsndfile.so.1  
+	libsoup-2.4.so.1  
+	libsqlite3.so.0  
+	libssl3.so  
+	libssl.so.10  
+	libstdc++.so.6  
+	libsystemd.so.0  
+	libtiff.so.5  
+	libtotem-plparser.so.18  
+	libtotem.so.0  
+	libusal.so.0  
+	libutil.so.1  
+	libuuid.so.1  
+	libvorbisenc.so.2  
+	libvorbis.so.0  
+	libwpd-0.10.so.10  
+	libwpg-0.3.so.3  
+	libwrap.so.0  
+	libX11.so.6  
+	libX11-xcb.so.1  
+	libXau.so.6  
+	libXaw.so.7  
+	libxcb-dri2.so.0  
+	libxcb-dri3.so.0  
+	libxcb-glx.so.0  
+	libxcb-present.so.0  
+	libxcb-randr.so.0  
+	libxcb-render.so.0  
+	libxcb-shape.so.0  
+	libxcb-shm.so.0  
+	libxcb.so.1  
+	libxcb-sync.so.1  
+	libxcb-xfixes.so.0  
+	libXcomposite.so.1  
+	libXcursor.so.1  
+	libXdamage.so.1  
+	libXdmcp.so.6  
+	libXext.so.6  
+	libXfixes.so.3  
+	libXft.so.2  
+	libXinerama.so.1  
+	libXi.so.6  
+	libxml2.so.2  
+	libXmu.so.6  
+	libXpm.so.4  
+	libXrandr.so.2  
+	libXrender.so.1  
+	libxshmfence.so.1  
+	libxslt.so.1  
+	libXt.so.6  
+	libXtst.so.6  
+	libXxf86vm.so.1  
+	libz.so.1  
+	linux-vdso.so.1  
+
+
+By also piping this output into wc -l I found that there were 212 dynamic libraries called. I also noted above which ones returned errors and were not dynamic executables

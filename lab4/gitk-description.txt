@@ -1,0 +1,26 @@
+CS35L
+gitk description
+
+There were five main windows in the gitk GUI interface.
+
+1) The top left window displayed a list of all commits and git actions 
+with a description message of the change made. It also had a little 
+visual animation on the left side to made the series of commits more 
+easy to understand and keep track of. 
+
+2) The top middle window matched up line to line with the first 
+window, and it provided the name and email of the user who made the 
+commit.
+
+3) The top right window also matched up line to line with the first 
+and second windows, and this gave the date and time that the 
+respective commit was made.
+
+4) The bottom left window provided the in depth information about the
+highlighted commit. It included who authored it, who committed it, the 
+parent commits, the child commits, and the branches.
+
+5) The bottom right window provided any comments made about the given 
+commit and could be toggled between Patch and Tree.
+
+In between windows 1,2,3 and 4,5 there was a bar that included the SHA1 ID number, the row number and a couple other options.

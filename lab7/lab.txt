@@ -1,0 +1,180 @@
+George Archbold	
+CS 35L
+Lab 7 
+
+1. I began by writing the transliteration tr2b c file that uses buffered I/O and two operands (from and to) to describe the characters to be transliterated. I checked if argc c was equal to three t make sure that the command call included a from string, a to string and a file. The main function accepts the from and to c strings from argv, and I stored these values into two char* variables. I compared the length of these two variables to make sure that they were equal. I also iterated through the from array to make sure there were no duplicates. 
+
+After check for all the possible errors, I used getchar() to take in each charcter from the file. Then I used a for loop inside of a while loop to go through every char in the input file and check it against every char against all the chars in the "from string" and if there is a match, the program calls putchar() on the matching char from the "to string", otherwise it it calls putchar() on the original char inputted from the file.
+
+ 2. Then I wrote the transliteration script tr2u c file that uses unbuffered I/O. The only difference was that I had to use read and write instead of getchar and putchar.
+
+ cp tr2b.c tr2u.c 
+
+The call for read is as shown below.
+ ssize_t read(int fildes, void *buf, size_t nbyte);
+ After reading up on file descriptors, I found that 0 can be used for 
+ stdin (read) and 1 for stdout (write). so instead of setting my input 
+ cariable to getchar() I did the following
+
+ int readchar = read(0, &input, 1)
+
+
+This passed each char value in the file into input iteratively and also 
+gave me an int value for readchar, which I could use to check for any 
+errors. I then created a writechar variable and instead of calling putchar(
+) on the desired char I called write with the following command:
+
+writechar = write(1, &input, 1)
+
+
+
+
+3. For the next part of the lab I had to use strace to comapre the 
+difference between the number of system calls for tr2b.c and tr2u.c. I had 
+to make a file of at least 5,000,000 bytes:
+
+head --bytes=5000000 /dev/urandom > big.txt
+
+When running strace on tr2b I got the line:
+read(0, "\335\201:\271\355+\265U\fp\252\flN\275\357\230\255\206\231ht\224\205\366\304I\334\363#\325\362"..., 65536) = 65536
+
+
+Then when I ran trace on tr2u I got this:
+read(0, "y", 1)                         = 1
+write(1, "y", 1)                        = 1
+
+This output shows us the fildes of 0 and 1 for read and write, which correspond to stdin and stdout.
+
+
+a) First I tested the number of system calls for each of the two functions when copying from one file to another
+
+strace -c ./tr2b a b  < big.txt > syscall.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 24.28    0.000042          21         2           read
+ 19.08    0.000033           4         9           mmap
+ 10.40    0.000018           5         4           mprotect
+  9.83    0.000017           9         2           open
+  9.83    0.000017           9         2           close
+  8.09    0.000014          14         1           write
+  5.78    0.000010           3         4           fstat
+  4.05    0.000007           7         1           munmap
+  3.47    0.000006           6         1         1 access
+  2.89    0.000005           5         1           execve
+  1.16    0.000002           2         1           brk
+  1.16    0.000002           2         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000173                    29         1 total
+
+
+strace -c ./tr2u a b  < big.txt > syscall.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 55.69    5.809743           1   5000000           write
+ 44.31    4.622302           1   5000002           read
+  0.00    0.000044           6         7           mmap
+  0.00    0.000025           6         4           mprotect
+  0.00    0.000014           7         2           open
+  0.00    0.000012          12         1           munmap
+  0.00    0.000008           4         2           fstat
+  0.00    0.000007           7         1         1 access
+  0.00    0.000007           7         1           execve
+  0.00    0.000006           3         2           close
+  0.00    0.000004           4         1           brk
+  0.00    0.000003           3         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   10.432175              10000024         1 total
+
+By using -c, we can see the breakdown for all the system calls, and that 
+the main difference is clearly that the tr2u has exponentially more system 
+calls. This is becasue the tr2b function uses an n byte size of 65536
+where as in the tr2u function we set the n byte size to n=1 which therefor 
+makes it require more system calls and thus take much longer.
+
+
+b) We then tested each of the two functions when copying from 
+one file to terminal
+
+strace -c ./tr2b abcde edcba  < big.txt
+
+
+time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 43.75    0.000007           7         1           execve
+ 31.25    0.000005           1         9           mmap
+ 25.00    0.000004           4         1           brk
+  0.00    0.000000           0         2           read
+  0.00    0.000000           0         1           write
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000016                    29         1 total
+
+
+strace -c ./tr2u abcde edcba  < big.txt
+
+?% time     seconds  usecs/call     calls    errors syscall?8#??
+------ ----------- ----------- --------- --------- ----------------
+ 58.39    6.461760           1   5000002         2 write
+ 41.61    4.604898           1   5000002           read
+  0.00    0.000038           5         7           mmap
+  0.00    0.000025           6         4           mprotect
+  0.00    0.000017           9         2           open
+  0.00    0.000010          10         1           munmap
+  0.00    0.000008           8         1         1 access
+  0.00    0.000007           4         2           close
+  0.00    0.000007           4         2           fstat
+  0.00    0.000007           7         1           execve
+  0.00    0.000004           4         1           arch_prctl
+  0.00    0.000003           3         1           brk
+------ ----------- ----------- --------- --------- ----------------
+100.00   11.066784              10000026         3 total
+
+We can see that tr2u runs a system call once for each byte in the input 
+file, which is insanely inefficient and slow compared to tr2b which runs 
+on an n byte size of 65536.
+
+
+4. For this part of the lab, I used the time command to compare the speeds 
+of execution of each function, for copying to terminal and copying to 
+another file.
+
+
+tr2b.c:
+
+time ./tr2b "abc" "cba" < big.txt
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+
+time ./tr2b "abc" "cba" < big.txt > syscall2.txt
+real	0m0.011s
+user	0m0.000s
+sys	0m0.002s
+
+
+
+tr2u.c:
+
+time ./tr2u "abc" "cba" < big.txt
+real	0m5.453s
+user	0m0.279s
+sys	0m5.114s
+
+time ./tr2u "abc" "cba" < big.txt > syscall2.txt
+real	0m5.884s
+user	0m0.281s
+sys	0m5.527s
+
+The results above agree with out results from the earlier part where we 
+tested the functions using strace. tr2b has an intermiediary buffer where 
+it stores up to 65336 bytes before making a system call. As you wuold 
+expect, since tr2u requires significantly more system calls than tr2b, it 
+subsequently requires alot more time to fully execute.

@@ -1,0 +1,186 @@
+George Archbold
+Lab 4
+CS35L
+
+1. I followed the links to the savannah repository and used the command that 
+was listed on the site:
+git clone git://git.savannah.gnu.org/diffutils.git
+
+2. I had trouble getting the correct syntax for this one. I kept trying to 
+call it on the directory. The I went into the directory diffutils and called 
+git log and it worked: 
+commit a3ea9cd5cb911a0319c81b01e205b24c92a8535c
+commit a1140dd45845d838401425f9a3c0af944abb5795
+commit d77f95f8dcbfa6e160d74e07cbd5f7def737975e
+
+3. git tag > git-tags.txt
+
+4. 
+vim git-log.txt
+
+I found the wrote commit and then made it into a file:
+
+git show 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f > quote-patch.txt
+
+5. 
+git show v3.0
+git checkout v3.0
+
+6.  patch -p1 < quote-patch.txt
+This succeeded in making the correct patch
+
+7. git status
+This command showed all the files that were modified by the patch
+
+#   modified:   NEWS
+#	modified:   README
+#	modified:   TODO
+#	modified:   doc/diagmeet.note
+#	modified:   ms/config.bat
+#	modified:   ms/config.site
+#	modified:   po/en.po
+#	modified:   src/analyze.c
+#	modified:   src/cmp.c
+#	modified:   src/context.c
+#	modified:   src/diff.c
+#	modified:   src/diff.h
+#	modified:   src/diff3.c
+#	modified:   src/dir.c
+#	modified:   src/ifdef.c
+#	modified:   src/io.c
+#	modified:   src/sdiff.c
+#	modified:   src/side.c
+#	modified:   src/system.h
+#	modified:   src/util.c
+#	modified:   tests/help-version
+
+
+
+9. For all non c files:
+
+git checkout -- NEWS TODO README doc/diagmeet.note ms/config.bat ms/config.
+site po/en.po src/diff.h src/system.h tests/help-version
+
+Now git status gives:
+
+#	modified:   src/analyze.c
+#	modified:   src/cmp.c
+#	modified:   src/context.c
+#	modified:   src/diff.c
+#	modified:   src/diff3.c
+#	modified:   src/dir.c
+#	modified:   src/ifdef.c
+#	modified:   src/io.c
+#	modified:   src/sdiff.c
+#	modified:   src/side.c
+#	modified:   src/util.c
+
+For all c files now:
+
+src/analyze.c:
+all changes were made to comments
+revert all C-x v u
+
+src/context.c
+all changes were made to comments
+revert all C-x v u
+
+I went through all the files. The patch changed all the ` to '. For all the 
+changes made to source code I left the changes and then reverted the changes 
+in the comments to ensure that the patch was a minimal patch. 
+
+I used C-x v = to open to diff buffer, then for all the changes to comments I 
+reverted them using C-c C-a
+
+After going through and reverting the unnesccesary changes Ichecked which 
+were changed by using git status:
+
+#	modified:   src/cmp.c
+#	modified:   src/diff.c
+#	modified:   src/diff3.c
+#	modified:   src/dir.c
+#	modified:   src/sdiff.c
+#	modified:   src/util.c
+
+10. 
+Here I examined every src/*.c.reg file to see the changes that needed to 
+still be manually inputted.
+
+11. To remove all untracked files, I called git status and check which ones 
+were untracked. I didnt want to manually go through and git rm each file so I 
+looked up the man page for git clean to see if that would be something I 
+could use. I called git clean -n to see what it would do before I actually 
+executed it. It told me the files it would remove and they were the correct 
+files so I then called:
+git clean -f
+
+12. git diff < quote-3.0-patch.txt
+
+
+13. I opened the README-hacking file and read the directions:
+
+"Obviously, if you are reading these notes, you did manage to check out
+this package from CVS.  The next step is to get other files needed to
+build, which are extracted from other source packages:""
+
+        $ ./bootstrap
+
+
+        $ ./configure --prefix=/u/be/ugrad/archbold/CS35L/lab4
+        $ make
+        $ make check
+
+To check that the patch worked correctly I ran the following commands:
+
+./src/diff . -
+./src/diff: cannot compare '-' to a directory
+This gave an error message and it did not have any back ticks.
+
+./diff --help
+This outputted the whole help message and there were no ` in the text.
+The absence of back ticks affirmed that my patch was successful
+
+I then committed these changes :
+
+git add .
+  git commit -m "I changed all the ` (backticks) to ' (apostrophes)"
+
+14.
+So now I had the correctly patched diff file. I made the diffutils-3.0-patch 
+directory and copied the src directory of the just built file into it:
+
+cp src src-patch
+mkdir diffutils-3.0-patch
+mv src-patch diffutils-3.0-patch
+
+I then recloned the unpatched version and extracted the unpatched src code:
+
+git clone git://git.savannah.gnu.org/diffutils.git
+
+mkdir diffutils-3.0
+cp src src
+mv src diffutils-3.0
+
+
+I now checked the differenced between the patched src code files and the 
+regular src code file:
+
+diffutils-3.0-patch/src-patch/diff diffutils-3.0-patch/src-patch diffutils-3.
+0/src > quote-3.0-test.txt
+
+
+15. I then used diff to compare quote-3.0-test.txt and quote-3.0-patch.txt
+to test if the patch had worked as it was supposed to. And while there were 
+differences. The differences were innocuous as they all had to do with 
+bookkeeping mechanisms of the file(formatting, line number etc) and the 
+content of the actual changes were the same.
+
+
+
+
+
+
+
+
+
+
